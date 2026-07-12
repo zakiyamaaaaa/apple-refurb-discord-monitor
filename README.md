@@ -8,12 +8,12 @@ https://www.apple.com/jp/shop/refurbished/mac/macbook-air-macbook-pro
 
 ## GitHub Actionsで動かす
 
-このリポジトリは `.github/workflows/apple-refurb-monitor.yml` で5分おきに監視します。
+このリポジトリは `.github/workflows/apple-refurb-monitor.yml` で1時間おきに監視します。毎時17分ごろに実行されます。
 
 1. GitHubリポジトリの `Settings` -> `Secrets and variables` -> `Actions` を開きます。
 2. `New repository secret` で `DISCORD_WEBHOOK_URL` を追加します。
 3. 値にはDiscordのWebhook URLを入れます。
-4. `Actions` タブから `Apple Refurb Monitor` を手動実行するか、5分おきの自動実行を待ちます。
+4. `Actions` タブから `Apple Refurb Monitor` を手動実行するか、1時間おきの自動実行を待ちます。
 
 初回実行では通知せず、`data/apple_refurb_state.json` に現在の一覧を保存して基準にします。2回目以降、前回なかった商品だけDiscordに通知します。
 

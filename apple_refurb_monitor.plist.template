@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.local.apple-refurb-discord</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/shoichiyamazaki/development/apple-refurb-discord-monitor/apple_refurb_watch.py</string>
+    <string>--state-file</string>
+    <string>/Users/shoichiyamazaki/Library/Application Support/apple-refurb-monitor/state.json</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>DISCORD_WEBHOOK_URL</key>
+    <string>PASTE_DISCORD_WEBHOOK_URL_HERE</string>
+    <key>APPLE_REFURB_FILTER</key>
+    <string>MacBook</string>
+  </dict>
+
+  <key>StartInterval</key>
+  <integer>300</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/shoichiyamazaki/Library/Logs/apple-refurb-discord.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/shoichiyamazaki/Library/Logs/apple-refurb-discord.err.log</string>
+</dict>
+</plist>

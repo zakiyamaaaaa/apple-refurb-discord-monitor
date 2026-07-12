@@ -6,7 +6,7 @@ from apple_refurb_watch import extract_products, find_added_products
 SAMPLE_HTML = """
 <html>
   <body>
-    <a href="/jp/shop/product/fdha4j/a">13インチMacBook Air [整備済製品] Apple M5チップ - スターライト</a>
+    <a href="/jp/shop/product/fdha4j/a?fnode=temporary">13インチMacBook Air [整備済製品] Apple M5チップ - スターライト</a>
     <p>189,800円</p>
     <a href="/jp/shop/product/mw123j/a">24インチiMac [整備済製品] Apple M4チップ - ブルー</a>
     <p>210,800円</p>
@@ -28,6 +28,7 @@ class AppleRefurbWatchTest(unittest.TestCase):
         self.assertEqual(len(products), 2)
         self.assertEqual(products[0].product_id, "FDHA4J/A")
         self.assertEqual(products[0].price, "189,800円")
+        self.assertNotIn("fnode", products[0].url)
         self.assertIn("MacBook Pro", products[1].title)
         self.assertEqual(products[1].price, "363,800円")
 

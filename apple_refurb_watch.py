@@ -11,13 +11,12 @@ import os
 import re
 import sys
 import time
-from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urlunparse
 from urllib.request import Request, urlopen
 
 
@@ -138,6 +137,11 @@ def product_id_from_url(url: str) -> str:
     return sku_parts[0].upper()
 
 
+def canonical_product_url(url: str) -> str:
+    parsed = urlparse(url)
+    return urlunparse(parsed._replace(query="", fragment=""))
+
+
 def product_key(product_id: str, title: str, url: str) -> str:
     if product_id:
         return product_id
@@ -165,7 +169,7 @@ def extract_products(
         if not title_re.search(title):
             continue
 
-        full_url = urljoin(source_url, token["href"])
+        full_url = canonical_product_url(urljoin(source_url, token["href"]))
         product_id = product_id_from_url(full_url)
         key = product_key(product_id, title, full_url)
         if key in seen:
@@ -206,10 +210,8 @@ def load_state(path: Path) -> dict[str, Any] | None:
 def save_state(path: Path, source_url: str, products: list[Product]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     state = {
-        "last_checked": datetime.now(timezone.utc).isoformat(),
         "source_url": source_url,
-        "current_keys": [product.key for product in products],
-        "products": [asdict(product) for product in products],
+        "current_keys": sorted(product.key for product in products),
     }
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     with tmp_path.open("w", encoding="utf-8") as handle:

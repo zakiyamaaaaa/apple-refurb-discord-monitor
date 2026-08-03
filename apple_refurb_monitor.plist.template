@@ -19,9 +19,9 @@
     <key>DISCORD_WEBHOOK_URL</key>
     <string>PASTE_DISCORD_WEBHOOK_URL_HERE</string>
     <key>APPLE_REFURB_URL</key>
-    <string>https://www.apple.com/jp/shop/refurbished/iphone</string>
+    <string>https://www.apple.com/jp/shop/refurbished/mac/mac-mini</string>
     <key>APPLE_REFURB_FILTER</key>
-    <string>iPhone</string>
+    <string>Mac mini</string>
   </dict>
 
   <key>StartInterval</key>

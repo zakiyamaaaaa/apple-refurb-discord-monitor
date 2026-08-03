@@ -18,8 +18,8 @@ jobs:
     timeout-minutes: 5
 
     env:
-      APPLE_REFURB_URL: "https://www.apple.com/jp/shop/refurbished/iphone"
-      APPLE_REFURB_FILTER: "iPhone"
+      APPLE_REFURB_URL: "https://www.apple.com/jp/shop/refurbished/mac/mac-mini"
+      APPLE_REFURB_FILTER: "Mac mini"
       APPLE_REFURB_STATE_FILE: data/apple_refurb_state.json
 
     steps:

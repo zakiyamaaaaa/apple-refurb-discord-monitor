@@ -2,7 +2,8 @@ name: Apple Refurb Monitor
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    # GitHub Actions の schedule は最短5分間隔 (UTC)
+    - cron: "2/5 * * * *"
   workflow_dispatch:
 
 permissions:

@@ -18,8 +18,10 @@
   <dict>
     <key>DISCORD_WEBHOOK_URL</key>
     <string>PASTE_DISCORD_WEBHOOK_URL_HERE</string>
+    <key>APPLE_REFURB_URL</key>
+    <string>https://www.apple.com/jp/shop/refurbished/iphone</string>
     <key>APPLE_REFURB_FILTER</key>
-    <string>MacBook</string>
+    <string>iPhone</string>
   </dict>
 
   <key>StartInterval</key>

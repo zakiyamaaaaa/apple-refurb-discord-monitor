@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Watch Apple's Japanese refurbished MacBook listings and notify Discord."""
+"""Watch Apple's Japanese refurbished product listings and notify Discord."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ from urllib.parse import urljoin, urlparse, urlunparse
 from urllib.request import Request, urlopen
 
 
-DEFAULT_URL = "https://www.apple.com/jp/shop/refurbished/mac/macbook-air-macbook-pro"
-DEFAULT_FILTER = "MacBook"
+DEFAULT_URL = "https://www.apple.com/jp/shop/refurbished/mac/mac-mini"
+DEFAULT_FILTER = "Mac mini"
 PRICE_RE = re.compile(r"(?:￥|¥)?\s*[\d,]+円")
 
 
@@ -239,7 +239,7 @@ def post_discord(webhook_url: str, products: list[Product], source_url: str) -> 
     for chunk_start in range(0, len(products), 10):
         chunk = products[chunk_start : chunk_start + 10]
         payload = {
-            "content": f"Apple認定整備済製品にMacBookが追加されました: {len(chunk)}件",
+            "content": f"Apple認定整備済製品にMac miniが追加されました: {len(chunk)}件",
             "embeds": [
                 {
                     "title": product.title[:256],
@@ -257,7 +257,7 @@ def post_discord(webhook_url: str, products: list[Product], source_url: str) -> 
                             "inline": True,
                         },
                     ],
-                    "footer": {"text": "Apple認定整備済製品 / MacBook監視"},
+                    "footer": {"text": "Apple認定整備済製品 / Mac mini監視"},
                 }
                 for product in chunk
             ],
@@ -296,13 +296,13 @@ def print_products(label: str, products: list[Product], max_items: int) -> None:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Notify Discord when new MacBook items appear in Apple Japan refurbished listings."
+        description="Notify Discord when new matching items appear in Apple Japan refurbished listings."
     )
     parser.add_argument("--url", default=os.environ.get("APPLE_REFURB_URL", DEFAULT_URL))
     parser.add_argument(
         "--filter",
         default=os.environ.get("APPLE_REFURB_FILTER", DEFAULT_FILTER),
-        help="Regular expression matched against product titles. Default: MacBook",
+        help="Regular expression matched against product titles. Default: Mac mini",
     )
     parser.add_argument(
         "--state-file",
@@ -354,7 +354,7 @@ def main(argv: list[str]) -> int:
             sample = Product(
                 key="TEST",
                 product_id="TEST",
-                title="Apple整備済MacBook通知テスト",
+                title="Apple整備済Mac mini通知テスト",
                 price="123,456円",
                 url=args.url,
             )

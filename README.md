@@ -1,10 +1,14 @@
-# Apple整備済MacBook Discord通知
+# Apple整備済Mac mini Discord通知
 
-Apple日本の認定整備済製品ページをGitHub Actionsで定期チェックし、前回の一覧になかったMacBook系商品だけをDiscord Webhookへ通知します。
+Apple日本の認定整備済製品（Macカテゴリ）をGitHub Actionsで定期チェックし、前回の一覧になかった **Mac mini** だけをDiscord Webhookへ通知します。
 
-監視対象の初期URL:
+監視対象URL:
 
-https://www.apple.com/jp/shop/refurbished/mac/macbook-air-macbook-pro
+https://www.apple.com/jp/shop/refurbished/mac/mac-mini
+
+商品名フィルタは正規表現 `Mac mini` です。MacカテゴリのHTMLにはMacBookなど他製品も含まれるため、フィルタでMac miniに限定しています。
+
+**注意:** 整備済Mac miniがApple日本で一度も掲載されていない時期は、一覧が0件のままです。その間は通知は出ませんが、新規掲載が始まったタイミングでDiscordに通知されます。
 
 ## GitHub Actionsで動かす
 
@@ -15,9 +19,11 @@ https://www.apple.com/jp/shop/refurbished/mac/macbook-air-macbook-pro
 3. 値にはDiscordのWebhook URLを入れます。
 4. `Actions` タブから `Apple Refurb Monitor` を手動実行するか、1時間おきの自動実行を待ちます。
 
-初回実行では通知せず、`data/apple_refurb_state.json` に現在の一覧を保存して基準にします。2回目以降、前回なかった商品だけDiscordに通知します。
+state ファイル `data/apple_refurb_state.json` がある場合、前回と比較して **新しく載った Mac mini** だけ通知します。初回に state が無い通常実行では、現在の一覧を基準として保存し通知しません。
 
-ワークフロー内では `APPLE_REFURB_FILTER` を `MacBook (Air|Pro)` にしているため、MacBook AirとMacBook Proだけを通知対象にします。MacBookを含む全商品に広げたい場合は、workflowの環境変数を `MacBook` に変えてください。
+### 別デバイスに変えたい場合
+
+`APPLE_REFURB_URL` / `APPLE_REFURB_FILTER` を変更したら、必ず `python3 apple_refurb_watch.py --seed` で state を作り直し、コミットしてください。古い state のままだと切り替え直後に大量通知されることがあります。
 
 ## ローカルで試す
 
@@ -97,12 +103,12 @@ tail -f "$HOME/Library/Logs/apple-refurb-discord.err.log"
 
 チェック間隔は `apple_refurb_monitor.plist.template` の `StartInterval` で変更できます。現在は300秒です。
 
-商品名フィルタは正規表現です。初期値は `MacBook` です。Actionsでは `MacBook (Air|Pro)` を指定しています。
+フィルタ例:
 
 ```bash
-APPLE_REFURB_FILTER='MacBook Pro' python3 apple_refurb_watch.py
+APPLE_REFURB_FILTER='Mac mini' python3 apple_refurb_watch.py
 ```
 
 ## 注意
 
-初回の通常実行では通知せず、現在の一覧を基準として保存します。これは既存商品を大量通知しないためです。以後、前回チェック時に存在しなかったMacBook系商品が出たときだけ通知します。
+Mac mini 以外の整備済Mac（MacBook、iMac など）が載っていても、フィルタにより通知対象外です。前回チェック時に存在しなかった Mac mini が載ったときだけ通知します。

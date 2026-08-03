@@ -12,12 +12,12 @@ https://www.apple.com/jp/shop/refurbished/mac/mac-mini
 
 ## GitHub Actionsで動かす
 
-このリポジトリは `.github/workflows/apple-refurb-monitor.yml` で1時間おきに監視します。毎時17分ごろに実行されます。
+このリポジトリは `.github/workflows/apple-refurb-monitor.yml` で **5分おき**（GitHub Actions で設定できる最短間隔）に監視します。cron は UTC 基準で、毎時 2, 7, 12, … 分ごろに実行されます（日本時間は UTC+9）。
 
 1. GitHubリポジトリの `Settings` -> `Secrets and variables` -> `Actions` を開きます。
 2. `New repository secret` で `DISCORD_WEBHOOK_URL` を追加します。
 3. 値にはDiscordのWebhook URLを入れます。
-4. `Actions` タブから `Apple Refurb Monitor` を手動実行するか、1時間おきの自動実行を待ちます。
+4. `Actions` タブから `Apple Refurb Monitor` を手動実行するか、5分おきの自動実行を待ちます。
 
 state ファイル `data/apple_refurb_state.json` がある場合、前回と比較して **新しく載った Mac mini** だけ通知します。初回に state が無い通常実行では、現在の一覧を基準として保存し通知しません。
 

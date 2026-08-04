@@ -8,7 +8,7 @@ https://www.apple.com/jp/shop/refurbished/mac/mac-mini
 
 商品名フィルタは正規表現 `Mac mini` です。MacカテゴリのHTMLにはMacBookなど他製品も含まれるため、フィルタでMac miniに限定しています。
 
-**注意:** 整備済Mac miniがApple日本で一度も掲載されていない時期は、一覧が0件のままです。その間は通知は出ませんが、新規掲載が始まったタイミングでDiscordに通知されます。
+**注意:** 整備済Mac miniが掲載されていない時期は一覧が0件のままです。掲載開始後は新規 SKU のみ通知します。商品データは HTML 内の `REFURB_GRID_BOOTSTRAP` から読み取ります（GitHub Actions から Apple が空ページを返すと 0 件のままになります。ログの `Fetch diagnostics` を確認してください）。
 
 ## GitHub Actionsで動かす
 

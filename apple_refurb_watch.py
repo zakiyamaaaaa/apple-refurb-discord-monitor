@@ -113,9 +113,13 @@ def fetch_html(url: str, timeout: int) -> str:
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleRefurbDiscordMonitor/1.0"
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/131.0.0.0 Safari/537.36"
         ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "ja-JP,ja;q=0.9,en-US;q=0.7,en;q=0.5",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
     }
     request = Request(url, headers=headers)
     with urlopen(request, timeout=timeout) as response:
@@ -198,6 +202,110 @@ def extract_products(
         )
 
     return products
+
+
+REFURB_BOOTSTRAP_RE = re.compile(
+    r"window\.REFURB_GRID_BOOTSTRAP\s*=\s*(\{[\s\S]*?\});\s*</script>"
+)
+
+
+def extract_products_from_bootstrap(
+    source_html: str,
+    source_url: str,
+    title_filter: str,
+) -> list[Product]:
+    match = REFURB_BOOTSTRAP_RE.search(source_html)
+    if not match:
+        return []
+
+    try:
+        data = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return []
+
+    title_re = re.compile(title_filter, re.IGNORECASE)
+    products: list[Product] = []
+    seen: set[str] = set()
+
+    for tile in data.get("tiles", []):
+        if not isinstance(tile, dict):
+            continue
+
+        title = clean_text(str(tile.get("title") or ""))
+        if not title or not title_re.search(title):
+            continue
+
+        href = str(tile.get("productDetailsUrl") or "")
+        if not href:
+            continue
+
+        full_url = canonical_product_url(urljoin(source_url, href))
+        product_id = clean_text(str(tile.get("partNumber") or "")).upper()
+        if not product_id:
+            product_id = product_id_from_url(full_url)
+        key = product_key(product_id, title, full_url)
+        if key in seen:
+            continue
+
+        price_data = tile.get("price") if isinstance(tile.get("price"), dict) else {}
+        current_price = (
+            price_data.get("currentPrice")
+            if isinstance(price_data.get("currentPrice"), dict)
+            else {}
+        )
+        price = clean_text(str(current_price.get("amount") or ""))
+
+        seen.add(key)
+        products.append(
+            Product(
+                key=key,
+                product_id=product_id,
+                title=title,
+                price=price,
+                url=full_url,
+            )
+        )
+
+    return products
+
+
+def collect_matching_products(
+    source_html: str,
+    source_url: str,
+    title_filter: str,
+) -> list[Product]:
+    """Merge bootstrap JSON and link-parser results (deduped by product key)."""
+    merged: dict[str, Product] = {}
+    for product in (
+        *extract_products_from_bootstrap(source_html, source_url, title_filter),
+        *extract_products(source_html, source_url, title_filter),
+    ):
+        merged[product.key] = product
+    return list(merged.values())
+
+
+def log_fetch_diagnostics(source_html: str, products: list[Product], title_filter: str) -> None:
+    has_bootstrap = "REFURB_GRID_BOOTSTRAP" in source_html
+    bootstrap_count = 0
+    if has_bootstrap:
+        match = REFURB_BOOTSTRAP_RE.search(source_html)
+        if match:
+            try:
+                bootstrap_count = len(json.loads(match.group(1)).get("tiles", []))
+            except json.JSONDecodeError:
+                bootstrap_count = -1
+
+    print(
+        f"Fetch diagnostics: html_bytes={len(source_html.encode('utf-8'))} "
+        f"bootstrap={has_bootstrap} bootstrap_tiles={bootstrap_count} "
+        f"matched={len(products)} filter={title_filter!r}"
+    )
+    if not products and not has_bootstrap:
+        print(
+            "WARNING: Apple page lacks REFURB_GRID_BOOTSTRAP; "
+            "GitHub-hosted runners often get blocked/empty HTML.",
+            file=sys.stderr,
+        )
 
 
 def load_state(path: Path) -> dict[str, Any] | None:
@@ -363,7 +471,8 @@ def main(argv: list[str]) -> int:
             return 0
 
         source = fetch_html(args.url, args.timeout)
-        products = extract_products(source, args.url, args.filter)
+        products = collect_matching_products(source, args.url, args.filter)
+        log_fetch_diagnostics(source, products, args.filter)
         previous_state = load_state(state_path)
         added_products = find_added_products(previous_state, products, args.notify_existing)
 
